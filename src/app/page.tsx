@@ -20,20 +20,26 @@ export default function Home() {
 		setLeInput('');
 		console.log('Calling...');
 
-		const res = await fetch('/api', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({ messages }),
-		});
+		try {
+			const res = await fetch('/api', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ messages }),
+			});
 
-		const data = await res.json();
-		const { output } = data;
-		console.log('OpenAI replied...', output.content);
+			if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
 
-		setMessages((prevMessages) => [...prevMessages, output]);
-		setIsLoading(false);
+			const data = await res.json();
+			const { output } = data;
+			console.log('OpenAI replied...', output.content);
+
+			setMessages((prevMessages) => [...prevMessages, output]);
+			setIsLoading(false);
+		} catch (err) {
+			console.error('Error fetching:', err);
+		}
 	};
 
 	const Submit = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -79,7 +85,7 @@ export default function Home() {
 						onKeyDown={Submit}
 					/>
 					<button
-						onClick={() => callGetResponse}
+						onClick={callGetResponse}
 						className='w-[15%] bg-blue-500 px-4 py-2 rounded-r'>
 						send
 					</button>
